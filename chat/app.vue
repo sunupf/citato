@@ -30,6 +30,8 @@
   </div>
 </template>
 <script setup>
+  const route = useRoute()
+  const contextAwarenes = route.query.context === 'false' ? false : true
   const messagesSample = reactive([
     [
       {
@@ -69,7 +71,7 @@
 
     if (response) {
       const sentenceStatus = response.data.data.choices[0].message.content
-      if (sentenceStatus === 'ya') {
+      if (sentenceStatus === 'ya' && contextAwarenes) {
         const data = JSON.parse(JSON.stringify(messagesSample[activeSample.value]))
         data.push(input)
         const response = await api.post('/api/v1/detect/cac', {
@@ -88,6 +90,14 @@
           input.censored = false
           input.content = ''
         }
+      } else {
+        if (sentenceStatus === 'ya') {
+          input.censored = true
+        }
+
+        messagesSample[activeSample.value].push(JSON.parse(JSON.stringify(input)))
+        input.censored = false
+        input.content = ''
       }
     }
   }
