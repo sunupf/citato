@@ -98,4 +98,4 @@ Demo API kami dapat diakses menggunakan Insomnia dan mengimport [JSON](https://r
 
 Repository Code juga dapat diakses melalui [Github](https://github.com/sunupf/citato)
 
-Dan tak kalah penting adalah demo video yang bisa diakses melalui [Youtube]()
+Dan tak kalah penting adalah demo video yang bisa diakses melalui [Youtube](https://youtu.be/Sj_2t7yWDKw)
