@@ -15,18 +15,50 @@ class ChatController extends Controller
             'message' => 'required'
         ]);
 
+        $prompt = "
+        Rule :
+        1. Kamu seorang Ahli bahasa Indonesia dan dapat mendeteksi kata umpatan dan kotor dalam bahasa indonesia
+        2. Kamu bekerja dalam 3 tahap, 
+        - thought : berfikir untuk menjawab pertanyaan berdasarkan konteks percakapan yang ada
+        - action: melaksanakan tugas pendeteksian kata kotor dan umpatan kemudian menuliskan kata kata yang terdeteksi.
+        - reflection: berfikir kembali untuk tiap-tiap kata yang terdeteksi.  apakah benar merupakan umpatan, kata kotor atau hanya sekedar ketidakpuasan atau sebal. mari pikirkan dengan seksama
+        
+        kembalikan jawaban dengan format json seperti contoh dibawah ini
+        {
+            detected: true,
+            message: 'omong kosong, lama banget'
+            position: [
+                {
+                    word:'omong kosong',
+                    type:'umpatan',
+                    confidence_level:0.9,
+                    start:0,
+                    end:11
+                }
+            ]
+        }
+        
+        dan seperti contoh ini ketika hasil deteksi kosong
+        {
+            detected: false,
+            message:'Iya, bener begitu',
+            position: null
+        }
+        
+        3. tuliskan posisi huruf ke berapa sampai berapa dalam kalimat tersebut pada start dan end. 
+        4. tuliskan juga confidence level untuk tiap kata
+
+        
+        Apakah kalimat " . $request->message . " mengandung kata kasar atau kotor bedasarkan konteks kalimat diatas?. cukup return json saja";
+
         $message = [
             [
                 'role' => 'system',
-                'content' => "Kamu adalah pekerja lembaga sensor yang bertugas untuk memfilter kata-kata umpatan dari suatu kalimat yang dituliskan oleh pengguna. Jawab dengan jawaban ya jika kalimat mengandung umpatan dan tidak jika tidak mengandung umpatan. jawab dalam bentuk lowercase"
-            ],
-            [
-                'role' => 'user',
-                'content' => $request->message
+                'content' => $prompt
             ]
         ];
 
-        Log::info(json_encode($message));
+        Log::info($message);
 
         $groq = new GroqChat();
 
@@ -35,7 +67,7 @@ class ChatController extends Controller
     
             return response()->json([
                 "status" => "success",
-                "data" => $chatCompletion,
+                "data" => json_decode($chatCompletion['choices'][0]['message']['content']),
                 "message" => "Classification Done"
             ], 200);
         } catch (Groq\APIError $err) {
@@ -67,10 +99,10 @@ class ChatController extends Controller
 
         try {
             $chatCompletion = $groq->chat($messages);
-    
+            Log::info($chatCompletion['choices'][0]['message']['content']);
             return response()->json([
                 "status" => "success",
-                "data" => $chatCompletion,
+                "data" => json_decode($chatCompletion['choices'][0]['message']['content']),
                 "message" => "CAC Detection Done"
             ], 200);
         } catch (Groq\APIError $err) {
@@ -83,7 +115,7 @@ class ChatController extends Controller
     }
 
     private function buildCacPrompt($data) {
-        $conversation = "<|chat|>\n";
+        $conversation = "";
 
         foreach($data as $key => $message) {
             if (isset($data[$key + 1])) {
@@ -93,20 +125,57 @@ class ChatController extends Controller
             }
         }
         
-        $conversation = $conversation."<|/chat|>\n\n";
-        $conversation = $conversation."Tentukan kalimat percakapan berikutnya apakah mengandung makian berdasarkan konteks percakapan tersebut. Jawab dengan ya atau tidak menggunakan lowercase";
-
+        $prompt = "
+        Rule :
+        1. Kamu seorang Ahli bahasa Indonesia dan dapat mendeteksi kata umpatan dan kotor dalam bahasa indonesia
+        2. Kamu bekerja dalam 3 tahap, 
+        - thought : berfikir untuk menjawab pertanyaan berdasarkan konteks percakapan yang ada
+        - action: melaksanakan tugas pendeteksian kata kotor dan umpatan kemudian menuliskan kata kata yang terdeteksi.
+        - reflection: berfikir kembali untuk tiap-tiap kata yang terdeteksi.  apakah benar merupakan umpatan, kata kotor atau hanya sekedar ketidakpuasan atau sebal. mari pikirkan dengan seksama
+        
+        kembalikan jawaban dengan format json seperti contoh dibawah ini
+        {
+            detected: true,
+            message: 'omong kosong, lama banget'
+            position: [
+                {
+                    word:'omong kosong',
+                    type:'umpatan',
+                    confidence_level:0.9,
+                    start:0,
+                    end:11
+                }
+            ]
+        }
+        
+        dan seperti contoh ini ketika hasil deteksi kosong
+        {
+            detected: false,
+            message:'Iya, bener begitu',
+            position: null
+        }
+        
+        3. tuliskan posisi huruf ke berapa sampai berapa dalam kalimat tersebut pada start dan end. 
+        4. tuliskan juga confidence level untuk tiap kata
+        
+        Konteks percakapan dapat dilihat pada text berikut:
+        " . $conversation . "
+        
+        Apakah kalimat berikut ini mengandung kata kasar atau kotor bedasarkan konteks kalimat diatas?. cukup return json saja";
+        
 
         $messages = [
             [
                 'role' => 'system',
-                'content' => $conversation
+                'content' => $prompt
             ],
             [
                 'role' => 'user',
-                'content' =>  $data[$lastIndex]['role'] . " menuliskan kalimat \"" . $data[$lastIndex]['content'] ."\""
+                'content' =>  $data[$lastIndex]['role'] . ": " . $data[$lastIndex]['content'] .""
             ]
         ];
+
+        Log::info($message);
 
         return $messages;
 

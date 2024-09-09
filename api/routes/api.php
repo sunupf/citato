@@ -9,7 +9,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         return $request->user();
     });
 
-    Route::post('/tokens/create', function (Request $request) {
+    Route::post('/tokens', function (Request $request) {
         $token = auth()->user()->createToken($request->name);
      
         return response()->json([
