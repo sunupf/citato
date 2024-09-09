@@ -88,13 +88,14 @@ Menggunakan CAC bukan berarti tidak akan terjadi masalah. Manusia normal saja, t
 
 
 ## What Next?
-Dalam kesempatan kali ini CAC hanya dapat mensensor kalimat atau kata (text), tetapi possibility ke depan sangatlah besar.
-- Deteksi image yang kurang baik
+Dalam kesempatan kali ini CAC hanya dapat mensensor kalimat atau kata (text), tetapi possibility ke depan sangatlah besar. Namun hal utama yang perlu dilakukan adalah meningkatkan akurasi deteksi.
+- Meningkatkan Akurasi deteksi dengan data training yang tepat akan membuat CAC lebih menghasilkan sensor yang berkualitas.
+- Deteksi image
     - Dokter, Pengacara, atau siapapun yang menerima konsultasi melalui chat, dapat menfilter image yang diterima, Kasus Sexual Harassment jelas akan berkurang.
-- Meningkatkan Akurasi deteksi dengan data training yang tepat akan membuat CAC lebih menghasilkan sensor yang berkualitas. 
+
 
 ## Demo
-Demo API kami dapat diakses menggunakan Insomnia dan mengimport [JSON](https://res.cloudinary.com/isuk/raw/upload/v1719132107/public-assets/zeqi2tuo0sclwv6ddmed.json) yang tersedia.
+Demo API kami dapat diakses menggunakan Insomnia dan mengimport [JSON](https://res.cloudinary.com/isuk/raw/upload/v1725875067/citato_o8yech.json) yang tersedia.
 
 Repository Code juga dapat diakses melalui [Github](https://github.com/sunupf/citato)
 
